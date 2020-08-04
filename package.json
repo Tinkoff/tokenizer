@@ -1,0 +1,29 @@
+{
+  "name": "@tinkoff/tokenizer",
+  "version": "1.0.0",
+  "main": "./build/tokenizer.cjs.js",
+  "module": "./build/tokenizer.esm.js",
+  "types": "./build/tokenizer.d.ts",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "rollup --config ./rollup.config.js",
+    "watch": "rollup --config ./rollup.config.js -w -m"
+  },
+  "repository": "git@github.com:TinkoffCreditSystems/tokenizer.git",
+  "author": "k.banaru",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/jest": "^26.0.8",
+    "fsevents": "^2.1.3",
+    "jest": "^26.2.1",
+    "prettier": "^2.0.5",
+    "rollup": "^2.23.0",
+    "rollup-plugin-dts": "^1.4.9",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "ts-jest": "^26.1.4",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "tlds": "^1.207.0"
+  }
+}
