@@ -6,6 +6,7 @@ const text = ([value]: TemplateStringsArray) => ({ type: 'text', value });
 const users = ([value]: TemplateStringsArray) => ({ type: 'users', value });
 const tickers = ([value]: TemplateStringsArray) => ({ type: 'tickers', value });
 const hash = ([value]: TemplateStringsArray) => ({ type: 'hash', value });
+const email = ([value]: TemplateStringsArray) => ({ type: 'email', value });
 
 describe('url parsing', () => {
   it('https://example.com', () => {
@@ -43,11 +44,27 @@ describe('url parsing', () => {
         domain`www-stage.some-cool--domain.ru/?param-with-dash=value`
     );
   });
+
+  it('has mail in hash', () => {
+    expect(tokenizerTag`exapmle.com/?user=my@mail.ru`[0]).toEqual(
+        domain`exapmle.com/?user=my@mail.ru`
+    );
+  });
 });
 describe('email', () => {
-  it('should parse email', function () {
-    expect(tokenizerTag`my@mail.ru`[0]).toEqual(
-        domain`www-stage.some-cool--domain.ru/?param-with-dash=value`
+  it('simple email', function () {
+    expect(tokenizerTag`email me at my@mail.ru! Hit me a msg`[1]).toEqual(
+        email`my@mail.ru`
+    );
+  });
+  it('email with dots and dashes', function () {
+    expect(tokenizerTag`i've created my.new-email-for.work@mail.co.uk. Send some work stuff there`[1]).toEqual(
+        email`my.new-email-for.work@mail.co.uk`
+    );
+  });
+  it('cyrillic mail', function () {
+    expect(tokenizerTag`i've created моя.почта@яндекс.рф. Send some work stuff there`[1]).toEqual(
+        email`моя.почта@яндекс.рф`
     );
   });
 })
@@ -104,6 +121,23 @@ describe('integration', () => {
       text` `,
       tickers`$ticker`,
       text` dsf`,
+    ]);
+  });
+
+  it('should omit empty tokens regexp', function () {
+    const str = 'sdf dsf #one dfsd https://vk.com яндекс.рф. @user sdf #one $ticker dsf';
+    const result = tokenizer(str, {
+      tickers: '',
+      users: '',
+      hash: '',
+    });
+
+    expect(result).toEqual([
+      text`sdf dsf #one dfsd `,
+      domain`https://vk.com`,
+      text` `,
+      domain`яндекс.рф`,
+      text`. @user sdf #one $ticker dsf`,
     ]);
   });
 });

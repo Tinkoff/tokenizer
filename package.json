@@ -1,6 +1,6 @@
 {
   "name": "@tinkoff/tokenizer",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "main": "./build/tokenizer.cjs.js",
   "module": "./build/tokenizer.esm.js",
   "types": "./build/tokenizer.d.ts",
@@ -22,8 +22,5 @@
     "rollup-plugin-typescript2": "^0.27.1",
     "ts-jest": "^26.1.4",
     "typescript": "^3.9.7"
-  },
-  "dependencies": {
-    "tlds": "^1.207.0"
   }
 }
