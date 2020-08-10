@@ -21,6 +21,10 @@ describe('url parsing', () => {
     expect(tokenizerTag`патриотичный тинькофф.рф`[1]).toEqual(domain`тинькофф.рф`);
   });
 
+  it('ascii representation of cyrillic site', () => {
+    expect(tokenizerTag`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин  посмотрим как`[0]).toEqual(domain`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин`);
+  });
+
   it('with hash tags', () => {
     expect(tokenizerTag`spa routing example.com#/some.cool?hash. Sure`[1]).toEqual(
       domain`example.com#/some.cool?hash`

@@ -51,4 +51,12 @@ export function tokenizer(str: string, tokensParam: { [x: string]: string } = {}
   return result;
 }
 
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+export function oneOf(list: string[]) {
+  return list.sort((a, b) => b.length - a.length).map(escapeRegExp).join('|');
+}
+
 export const print = (tokens: Token[]) => tokens.map((x) => `"${x.value}" (${x.type})`).join('  ');
