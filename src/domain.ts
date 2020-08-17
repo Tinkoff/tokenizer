@@ -14,6 +14,6 @@ const port = '(?::\\d{2,5})?';
 const path = `(?:[\\/?#](?:(?![:?[.:,;?!"']?\\s).)*)?`;
 const regex = `(?:${protocol}|www\\.)${auth}(?:localhost|${host}${domain}${tld})${port}${path}`;
 
-export const email = new RegExp(`^${username}${host}${domain}${tld}$`, 'igu');
+export const email = new RegExp(`^${username}${host}${domain}${tld}$`, 'gu');
 
-export default new RegExp(regex, unicodeSupported ? 'igu' : 'ig');
+export default new RegExp(regex, unicodeSupported ? 'gu' : 'g');

@@ -9,6 +9,27 @@ const hash = ([value]: TemplateStringsArray) => ({ type: 'hash', value });
 const email = ([value]: TemplateStringsArray) => ({ type: 'email', value });
 
 describe('url parsing', () => {
+
+  it('should handle lists',  () => {
+    const list = `
+          1.Apple 18.1%
+          2.Microsoft 16.4%
+          3.Facebook 6.2%
+          4.Alphabet 4.8%
+          5.Alphabet 4.8%
+          6.Visa 3.5%
+          7.Mastercard 2.8%
+          8.Intel 2.7%
+          9.Nvidia 2.5%
+          10.Netflix 2.4%
+    `;
+    expect(tokenizer(list)[0]).toEqual({ type: 'text', value: list });
+  });
+
+  it('EXAMPLE.com capital', () => {
+    expect(tokenizerTag`EXAMPLE.com`[0]).toEqual(domain`EXAMPLE.com`);
+  });
+
   it('https://example.com', () => {
     expect(tokenizerTag`check out https://example.com`[1]).toEqual(domain`https://example.com`);
   });
@@ -22,7 +43,9 @@ describe('url parsing', () => {
   });
 
   it('ascii representation of cyrillic site', () => {
-    expect(tokenizerTag`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин  посмотрим как`[0]).toEqual(domain`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин`);
+    expect(tokenizerTag`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин  посмотрим как`[0]).toEqual(
+      domain`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин`
+    );
   });
 
   it('with hash tags', () => {
@@ -33,45 +56,43 @@ describe('url parsing', () => {
 
   it('starts with -', () => {
     expect(tokenizerTag`-www.dohod.ru/ik/analytics/dividend/`[1]).toEqual(
-        domain`www.dohod.ru/ik/analytics/dividend/`
+      domain`www.dohod.ru/ik/analytics/dividend/`
     );
   });
 
   it('starts with emoji', () => {
     expect(tokenizerTag`📍www.dohod.ru/ik/analytics/dividend/`[1]).toEqual(
-        domain`www.dohod.ru/ik/analytics/dividend/`
+      domain`www.dohod.ru/ik/analytics/dividend/`
     );
   });
 
   it('uses "-" a lot', () => {
     expect(tokenizerTag`www-stage.some-cool--domain.ru/?param-with-dash=value`[0]).toEqual(
-        domain`www-stage.some-cool--domain.ru/?param-with-dash=value`
+      domain`www-stage.some-cool--domain.ru/?param-with-dash=value`
     );
   });
 
   it('has mail in hash', () => {
     expect(tokenizerTag`exapmle.com/?user=my@mail.ru`[0]).toEqual(
-        domain`exapmle.com/?user=my@mail.ru`
+      domain`exapmle.com/?user=my@mail.ru`
     );
   });
 });
 describe('email', () => {
   it('simple email', function () {
-    expect(tokenizerTag`email me at my@mail.ru! Hit me a msg`[1]).toEqual(
-        email`my@mail.ru`
-    );
+    expect(tokenizerTag`email me at my@mail.ru! Hit me a msg`[1]).toEqual(email`my@mail.ru`);
   });
   it('email with dots and dashes', function () {
-    expect(tokenizerTag`i've created my.new-email-for.work@mail.co.uk. Send some work stuff there`[1]).toEqual(
-        email`my.new-email-for.work@mail.co.uk`
-    );
+    expect(
+      tokenizerTag`i've created my.new-email-for.work@mail.co.uk. Send some work stuff there`[1]
+    ).toEqual(email`my.new-email-for.work@mail.co.uk`);
   });
   it('cyrillic mail', function () {
     expect(tokenizerTag`i've created моя.почта@яндекс.рф. Send some work stuff there`[1]).toEqual(
-        email`моя.почта@яндекс.рф`
+      email`моя.почта@яндекс.рф`
     );
   });
-})
+});
 
 describe('integration', () => {
   it('should parse big text', function () {
@@ -88,32 +109,32 @@ describe('integration', () => {
 📍https://smart-lab.ru/ - крупнейший русскоязычный ресурс по работе с фондовым рынком РФ, много полезных статей.
 
 Продолжение... ⬇️
-    `
-    const domains = result.filter(x => x.type === 'domain').map(x => x.value);
+    `;
+    const domains = result.filter((x) => x.type === 'domain').map((x) => x.value);
     expect(domains).toEqual([
-        'https://ru.tradingview.com',
-        'https://ru.investing.com',
-        'https://bigcapital.org',
-        'https://simplywall.st',
-        'https://finviz.com',
-        'www.dohod.ru/ik/analytics/dividend/',
-        'https://conomy.ru',
-        'https://smart-lab.ru/'
-    ])
+      'https://ru.tradingview.com',
+      'https://ru.investing.com',
+      'https://bigcapital.org',
+      'https://simplywall.st',
+      'https://finviz.com',
+      'www.dohod.ru/ik/analytics/dividend/',
+      'https://conomy.ru',
+      'https://smart-lab.ru/',
+    ]);
     result;
   });
 
   it('complex test', () => {
-    const str = 'sdf dsf #one dfsd https://vk.com яндекс.рф. @user sdf #one $ticker dsf';
+    const str = 'sdf dsf #ONE dfsd https://vk.com яндекс.рф. @user sdf #one $ticker dsf';
     const result = tokenizer(str, {
-      tickers: '\\$ticker',
-      users: '@user',
-      hash: '#one',
+      tickers: /\$ticker/,
+      users: /@user/,
+      hash: /#one/i,
     });
 
     expect(result).toEqual([
       text`sdf dsf `,
-      hash`#one`,
+      hash`#ONE`,
       text` dfsd `,
       domain`https://vk.com`,
       text` `,
@@ -125,6 +146,23 @@ describe('integration', () => {
       text` `,
       tickers`$ticker`,
       text` dsf`,
+    ]);
+  });
+
+  it('should handle intersection', function () {
+    const str = 'sdf dsf dfsd https://vk.com#one яндекс.рф. @user sdf #one $ticker dsf';
+    const result = tokenizer(str, {
+      hash: /#one/i,
+    });
+
+    expect(result).toEqual([
+      text`sdf dsf dfsd `,
+      domain`https://vk.com#one`,
+      text` `,
+      domain`яндекс.рф`,
+      text`. @user sdf `,
+      hash`#one`,
+      text` $ticker dsf`,
     ]);
   });
 

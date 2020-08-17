@@ -1,49 +1,64 @@
 import domain, { email } from './domain';
-
-function index(match: any[]) {
-  return match.findIndex((x, i) => x && i) - 1;
-}
+import { PriorityQueue } from './PriorityQueue';
 
 export type Token = { type: string; value: string };
 
 const omitFalsy = (obj: Record<string, any>) =>
   Object.keys(obj).reduce((mem, key) => {
     if (obj[key]) {
-        mem[key] = obj[key];
+      mem[key] = obj[key];
     }
     return mem;
   }, {} as Record<string, any>);
 
-export function tokenizer(str: string, tokensParam: { [x: string]: string } = {}) {
-  const tokens = {
-    domain: domain.source,
+type TokenPointer = { type: string; regex: RegExp; res: RegExpExecArray };
+
+export function tokenizer(str: string, tokensParam: { [x: string]: RegExp | string } = {}) {
+  domain.lastIndex = 0;
+  email.lastIndex = 0;
+  const tokens: Record<string, RegExp> = {
+    domain: domain,
     ...omitFalsy(tokensParam),
   };
-  const exp = new RegExp(
-    `${Object.values(tokens)
-      .map((x) => `(${x})`)
-      .join('|')}`,
-    domain.unicode == null ? 'gi' : 'giu'
-  );
-  const groups = Object.keys(tokens);
+  const q = new PriorityQueue<TokenPointer>();
 
-  let res;
+  Object.keys(tokens).forEach((tokenKey) => {
+    const tokenRegEx = new RegExp(
+      tokens[tokenKey],
+      [...(new Set([...(tokens[tokenKey].flags || ''), 'g'])).values()].join('')
+    );
+    const res = tokenRegEx.exec(str);
+    if (res) {
+      q.push({ type: tokenKey, regex: tokenRegEx, res }, res.index);
+    }
+  });
+
+  let token;
   let lastIndex = 0;
   const result: Token[] = [];
-  while ((res = exp.exec(str))) {
-    let { index: nextIndex } = res;
-    if (lastIndex != nextIndex) {
-      result.push({ type: 'text', value: str.slice(lastIndex, nextIndex) });
-    }
-    let type = groups[index(res)];
-    const value = res[index(res) + 1];
-    if (type === 'domain') {
-      if (email.test(value)) {
-        type = 'email';
+  while ((token = q.shift())) {
+    let { index: nextIndex } = token.res;
+    if (nextIndex >= lastIndex) {
+      if (lastIndex != nextIndex) {
+        result.push({ type: 'text', value: str.slice(lastIndex, nextIndex) });
       }
+      let type = token.type;
+      const value = token.res[0];
+      if (type === 'domain') {
+        if (email.test(value)) {
+          type = 'email';
+        }
+      }
+      result.push({ type, value });
+      lastIndex = nextIndex + value.length;
+    } else {
+      token.regex.lastIndex = lastIndex;
     }
-    result.push({ type, value });
-    lastIndex = nextIndex + value.length;
+
+    const res = token.regex.exec(str);
+    if (res) {
+      q.push({ type: token.type, regex: token.regex, res }, res.index);
+    }
   }
   if (lastIndex != str.length) {
     result.push({ type: 'text', value: str.slice(lastIndex, str.length) });
@@ -56,7 +71,13 @@ function escapeRegExp(string: string) {
 }
 
 export function oneOf(list: string[]) {
-  return list.sort((a, b) => b.length - a.length).map(escapeRegExp).join('|');
+  if (!list.length) {
+    return undefined;
+  }
+  return new RegExp(list
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+    .join('|'), 'ig');
 }
 
 export const print = (tokens: Token[]) => tokens.map((x) => `"${x.value}" (${x.type})`).join('  ');
