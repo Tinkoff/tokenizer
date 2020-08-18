@@ -25,7 +25,7 @@ export function tokenizer(str: string, tokensParam: { [x: string]: RegExp | stri
   Object.keys(tokens).forEach((tokenKey) => {
     const tokenRegEx = new RegExp(
       tokens[tokenKey],
-      [...(new Set([...(tokens[tokenKey].flags || ''), 'g'])).values()].join('')
+      Array.from(new Set([...(tokens[tokenKey].flags || '').split(''), 'g'])).join('')
     );
     const res = tokenRegEx.exec(str);
     if (res) {
