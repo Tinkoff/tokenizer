@@ -30,12 +30,66 @@ describe('url parsing', () => {
     expect(tokenizerTag`EXAMPLE.com`[0]).toEqual(domain`EXAMPLE.com`);
   });
 
+  it('HTTPS://EXAMPLE.com capital', () => {
+    expect(tokenizerTag`HTTPS://EXAMPLE.com capital`[0]).toEqual(domain`HTTPS://EXAMPLE.com`);
+  });
+
   it('https://example.com', () => {
     expect(tokenizerTag`check out https://example.com`[1]).toEqual(domain`https://example.com`);
   });
 
+  it('Https://example.com first capital letter', () => {
+    expect(tokenizerTag`check out Https://example.com`[1]).toEqual(domain`Https://example.com`);
+  });
+
   it('example.com', () => {
     expect(tokenizerTag`go to example.com`[1]).toEqual(domain`example.com`);
+  });
+
+  it('within brackets', () => {
+    expect(tokenizerTag`go to (example.com)`[1]).toEqual(domain`example.com`);
+  });
+  describe('brackets', () => {
+    it('simple', () => {
+      expect(tokenizerTag`go to (example.com)`[1]).toEqual(domain`example.com`);
+    });
+    it('ends with dot', () => {
+      expect(tokenizerTag`go to (example.com/ololo).`[1]).toEqual(domain`example.com/ololo`);
+    });
+    it('two brackets', () => {
+      expect(tokenizerTag`go to (example.com/ololo))`[1]).toEqual(domain`example.com/ololo`);
+    });
+    it('complex url', () => {
+      expect(tokenizerTag`go to (example.com/ololo?foo=bar/#hash.this[one=two])`[1]).toEqual(domain`example.com/ololo?foo=bar/#hash.this[one=two]`);
+    });
+  })
+
+  describe('dots', () => {
+    it('simple', () => {
+      expect(tokenizerTag`go to example.com.`[1]).toEqual(domain`example.com`);
+    });
+    it('with path', () => {
+      expect(tokenizerTag`go to (example.com/ololo.`[1]).toEqual(domain`example.com/ololo`);
+    });
+    it('with path and space', () => {
+      expect(tokenizerTag`go to (example.com/ololo. `[1]).toEqual(domain`example.com/ololo`);
+    });
+    it('dots within path', () => {
+      expect(tokenizerTag`go to (example.com/ololo...ololo/`[1]).toEqual(domain`example.com/ololo...ololo/`);
+    });
+
+    it('dots after brackets', () => {
+      expect(tokenizerTag`go to (example.com/ololo). `[1]).toEqual(domain`example.com/ololo`);
+    });
+
+    it('dots after query', () => {
+      expect(tokenizerTag`go to (example.com/ololo?foo=bar.`[1]).toEqual(domain`example.com/ololo?foo=bar`);
+    });
+  });
+
+
+  it('ends with slash', () => {
+    expect(tokenizerTag`+https://smart-lab.ru/ `[1]).toEqual(domain`https://smart-lab.ru/`);
   });
 
   it('тинькофф.рф', () => {
