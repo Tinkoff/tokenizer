@@ -12,7 +12,7 @@ const domain = /(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*/.sourc
 const tld = `(?:\\.(?:${tlds.sort((a, b) => b.length - a.length).join('|')}))`;
 const port = /(?::\d{2,5})?/.source;
 const path = /(?:[\/?#](?:(?:(?![:?\[.),;!"']*\s).)*(?:(?![:?\[.),;!"']*\s)[^:?\[.),;!"']))?)?/.source;
-const regex = `(?:${protocol}|www\\.)${auth}(?:localhost|${host}${domain}${tld})${port}${path}`;
+const regex = `\\b(?:${protocol}|www\\.)${auth}(?:localhost|${host}${domain}${tld})${port}${path}\\b`;
 
 export const email = new RegExp(`^${username}${host}${domain}${tld}$`, 'gu');
 
