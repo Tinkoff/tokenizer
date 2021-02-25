@@ -16,4 +16,4 @@ const regex = `(?:${protocol}|www\\.)${auth}(?:localhost|${host}${domain}${tld})
 
 export const email = new RegExp(`^${username}${host}${domain}${tld}$`, 'gu');
 
-export default new RegExp(regex, unicodeSupported ? 'gu' : 'g');
+export default new RegExp(regex, unicodeSupported ? 'giu' : 'gi');
