@@ -1,4 +1,10 @@
 export default [
+  'COM',
+  'RU',
+  'NET',
+  'UA',
+  'SU',
+  'EU',
   'aaa',
   'aarp',
   'abarth',

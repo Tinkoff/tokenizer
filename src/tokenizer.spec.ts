@@ -34,6 +34,14 @@ describe('url parsing', () => {
     expect(tokenizerTag`HTTPS://EXAMPLE.com capital`[0]).toEqual(domain`HTTPS://EXAMPLE.com`);
   });
 
+  it('Держись веб HTTP://YA.RU', () => {
+    expect(tokenizerTag`HTTP://YA.RU`[0]).toEqual(domain`HTTP://YA.RU`);
+  });
+
+  it('Доман с разным регистром букв', () => {
+    expect(tokenizerTag`HttP://yA.RU`[0]).toEqual(domain`HttP://yA.RU`);
+  });
+
   it('https://example.com', () => {
     expect(tokenizerTag`check out https://example.com`[1]).toEqual(domain`https://example.com`);
   });
@@ -176,6 +184,26 @@ describe('integration', () => {
       'https://smart-lab.ru/',
     ]);
     result;
+  });
+
+  it('complex test', () => {
+    const str = 'sdf dsf #ONE dfsd https://vk.com яндекс.рф. создатель канала в инстаграм @ADS.fond';
+    const result = tokenizer(str, {
+      tickers: /\$ticker/,
+      users: /@[\w\.]+/,
+      hash: /#one/i,
+    });
+
+    expect(result).toEqual([
+      text`sdf dsf `,
+      hash`#ONE`,
+      text` dfsd `,
+      domain`https://vk.com`,
+      text` `,
+      domain`яндекс.рф`,
+      text`. создатель канала в инстаграм `,
+      users`@ADS.fond`,
+    ]);
   });
 
   it('complex test', () => {
