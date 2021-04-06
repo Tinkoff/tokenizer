@@ -231,6 +231,27 @@ describe('integration', () => {
     ]);
   });
 
+  it('http domain rule test', () => {
+    const str = 'текст...https://ЯНДЕКС.Рф текст;HTTPS://САЙТ1.РФ,HTTP://СаЙт2.Ру;https://САйТ3.САЙТ';
+    const result = tokenizer(str, {
+      tickers: /\$ticker/,
+      users: /@user/,
+      hash: /#one/i,
+    });
+  
+    expect(result).toEqual([
+      text`текст...`,
+      domain`https://ЯНДЕКС.Рф`,
+      text` текст;`,
+      domain`HTTPS://САЙТ1.РФ`,
+      text`,`,
+      domain`HTTP://СаЙт2.Ру`,
+      text`;`,
+      domain`https://САйТ3.САЙТ`,
+    ]);
+  });
+  
+
   it('should handle intersection', function () {
     const str = 'sdf dsf dfsd https://vk.com#one яндекс.рф. @user sdf #one $ticker dsf';
     const result = tokenizer(str, {
