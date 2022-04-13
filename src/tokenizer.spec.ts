@@ -183,69 +183,63 @@ describe('simple domain parsing', () => {
 
   describe('dots', () => {
     it('simple', () => {
-      expect(tokenizerTag`go to example.com.`[1]).toEqual(domain`example.com`);
+      expect(tokenizerTagSimple`go to http://example.com.`[1]).toEqual(domain`http://example.com`);
     });
     it('with path', () => {
-      expect(tokenizerTag`go to (example.com/ololo.`[1]).toEqual(domain`example.com/ololo`);
+      expect(tokenizerTagSimple`go to (http://example.com/ololo.`[1]).toEqual(domain`http://example.com/ololo`);
     });
     it('with path and space', () => {
-      expect(tokenizerTag`go to (example.com/ololo. `[1]).toEqual(domain`example.com/ololo`);
+      expect(tokenizerTagSimple`go to (http://example.com/ololo. `[1]).toEqual(domain`http://example.com/ololo`);
     });
     it('dots within path', () => {
-      expect(tokenizerTag`go to (example.com/ololo...ololo/`[1]).toEqual(domain`example.com/ololo...ololo/`);
+      expect(tokenizerTagSimple`go to (http://example.com/ololo...ololo/`[1]).toEqual(domain`http://example.com/ololo...ololo/`);
     });
 
     it('dots after brackets', () => {
-      expect(tokenizerTag`go to (example.com/ololo). `[1]).toEqual(domain`example.com/ololo`);
+      expect(tokenizerTagSimple`go to (http://example.com/ololo). `[1]).toEqual(domain`http://example.com/ololo`);
     });
 
     it('dots after query', () => {
-      expect(tokenizerTag`go to (example.com/ololo?foo=bar.`[1]).toEqual(domain`example.com/ololo?foo=bar`);
+      expect(tokenizerTagSimple`go to (http://example.com/ololo?foo=bar.`[1]).toEqual(domain`http://example.com/ololo?foo=bar`);
     });
   });
 
 
   it('ends with slash', () => {
-    expect(tokenizerTag`+https://smart-lab.ru/ `[1]).toEqual(domain`https://smart-lab.ru/`);
+    expect(tokenizerTagSimple`+https://smart-lab.ru/ `[1]).toEqual(domain`https://smart-lab.ru/`);
   });
 
   it('тинькофф.рф', () => {
-    expect(tokenizerTag`патриотичный тинькофф.рф`[1]).toEqual(domain`тинькофф.рф`);
-  });
-
-  it('ascii representation of cyrillic site', () => {
-    expect(tokenizerTag`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин  посмотрим как`[0]).toEqual(
-        domain`https://xn--80aqcujdeaf9k.xn--p1ai/тестодин`
-    );
+    expect(tokenizerTagSimple`патриотичный http://тинькофф.рф`[1]).toEqual(domain`http://тинькофф.рф`);
   });
 
   it('with hash tags', () => {
-    expect(tokenizerTag`spa routing example.com#/some.cool?hash. Sure`[1]).toEqual(
-        domain`example.com#/some.cool?hash`
+    expect(tokenizerTagSimple`spa routing http://example.com#/some.cool?hash. Sure`[1]).toEqual(
+        domain`http://example.com#/some.cool?hash`
     );
   });
 
   it('starts with -', () => {
-    expect(tokenizerTag`-www.dohod.ru/ik/analytics/dividend/`[1]).toEqual(
-        domain`www.dohod.ru/ik/analytics/dividend/`
+    expect(tokenizerTagSimple`-http://www.dohod.ru/ik/analytics/dividend/`[1]).toEqual(
+        domain`http://www.dohod.ru/ik/analytics/dividend/`
     );
   });
 
   it('starts with emoji', () => {
-    expect(tokenizerTag`📍www.dohod.ru/ik/analytics/dividend/`[1]).toEqual(
-        domain`www.dohod.ru/ik/analytics/dividend/`
+    expect(tokenizerTagSimple`📍http://www.dohod.ru/ik/analytics/dividend/`[1]).toEqual(
+        domain`http://www.dohod.ru/ik/analytics/dividend/`
     );
   });
 
   it('uses "-" a lot', () => {
-    expect(tokenizerTag`www-stage.some-cool--domain.ru/?param-with-dash=value`[0]).toEqual(
-        domain`www-stage.some-cool--domain.ru/?param-with-dash=value`
+    expect(tokenizerTagSimple`http://www-stage.some-cool--domain.ru/?param-with-dash=value`[0]).toEqual(
+        domain`http://www-stage.some-cool--domain.ru/?param-with-dash=value`
     );
   });
 
   it('has mail in hash', () => {
-    expect(tokenizerTag`exapmle.com/?user=my@mail.ru`[0]).toEqual(
-        domain`exapmle.com/?user=my@mail.ru`
+    expect(tokenizerTagSimple`http://exapmle.com/?user=my@mail.ru`[0]).toEqual(
+        domain`http://exapmle.com/?user=my@mail.ru`
     );
   });
 });
