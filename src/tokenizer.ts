@@ -84,4 +84,4 @@ export function oneOf(list: string[]) {
     .join('|'), 'ig');
 }
 
-export const print = (tokens: Token[]) => tokens.map((x) => `"${x.value}" (${x.type})`).join('  ');
+export const print = (tokens: Token[]) => tokens.map((x) => `"${x.value}" (${x.type})`).join(' ');
