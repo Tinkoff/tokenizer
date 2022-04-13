@@ -1,4 +1,4 @@
-import domain, { email } from './domain';
+import domain, { email, simpleDomain } from './domain';
 import { PriorityQueue } from './PriorityQueue';
 
 export type Token = { type: string; value: string };
@@ -13,11 +13,15 @@ const omitFalsy = (obj: Record<string, any>) =>
 
 type TokenPointer = { type: string; regex: RegExp; res: RegExpExecArray };
 
-export function tokenizer(str: string, tokensParam: { [x: string]: RegExp | string } = {}) {
+type Options = {
+  simpleDomain?: boolean
+}
+
+export function tokenizer(str: string, tokensParam: { [x: string]: RegExp | string } = {}, options?: Options) {
   domain.lastIndex = 0;
   email.lastIndex = 0;
   const tokens: Record<string, RegExp> = {
-    domain: domain,
+    domain: options?.simpleDomain ? simpleDomain : domain,
     ...omitFalsy(tokensParam),
   };
   const q = new PriorityQueue<TokenPointer>();
