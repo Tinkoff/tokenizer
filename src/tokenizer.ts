@@ -13,11 +13,15 @@ const omitFalsy = (obj: Record<string, any>) =>
 
 type TokenPointer = { type: string; regex: RegExp; res: RegExpExecArray };
 
-export function tokenizer(str: string, tokensParam: { [x: string]: RegExp | string } = {}) {
+type Options = {
+  disableDomain?: boolean;
+}
+
+export function tokenizer(str: string, tokensParam: { [x: string]: RegExp | string } = {}, options?: Options) {
   domain.lastIndex = 0;
   email.lastIndex = 0;
   const tokens: Record<string, RegExp> = {
-    domain: domain,
+    ...(!options?.disableDomain ? { domain: domain } : {}),
     ...omitFalsy(tokensParam),
   };
   const q = new PriorityQueue<TokenPointer>();
